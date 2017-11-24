@@ -5,33 +5,29 @@
 
 ; I want to make a square of smaller squares and tile it.
 
-(defn int->kw [x]
-  "Takes and integer and returns it as a keyword"
-  (-> x str keyword))
+; build the thing
+(defn build-matrix
+  "Build a matrix of width w and height h by applying a function f (f wi hi).
+  wi and hi are each value in (range w/h)."
+  [f w h]
+  (mat/matrix
+   (for [wi (range w)]
+     (for [hi (range h)]
+       (f wi hi)))))
 
-(def int-kw-seq
-  (map int->kw (range)))
+(build-matrix #(mod (+ %1 %2) 2) 3 3)
 
-(def tst [[1 2] [3 4]])
+; draw the thing
 
-(defn matrix-element [coll index-1 index-2]
-  (nth (nth coll index-1) index-2))
+(mat/emap-indexed #(str %1 " " %2) tst)
 
-(for [x [0 1]
-      y [0 1]]
-  {:x x :y y :val (matrix-element tst x y)})
-
-(mat/to-nested-vectors (mat/array [[1 2] [3 4]]))
+(mat/select tst 0 0)
 
 (defn setup []
   (q/frame-rate 60)
   (q/backgroud 255))
 
 (def grid-size 20)
-
-(def state {:matrix (vec
-                      (repeatedly (* grid-size grid-size) #(rand-int 2)))})
-
 
 
 (q/defsketch square-tiles
