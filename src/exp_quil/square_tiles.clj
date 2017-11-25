@@ -3,28 +3,16 @@
             [quil.middleware :as m]
             [clojure.core.matrix :as mat]))
 
-(map
-  #(-> (/ % 10)
-     float
-     Math/floor
-     int
-     (mod 2))
-  (range 50))
-
 ;; I want to make a square of smaller squares and tile it.
 ;; Define constants
 
 (def tile-size
   "The dimensions of the tiles in pixels."
-  30)
-
-(def grid-size-tiles
-  "The dimensions of the picture in tiles."
-  [10 10])
+  5)
 
 (def grid-size
   "The dimensions of the picture in pixels"
-  (map * grid-size-tiles (repeat tile-size)))
+  [20 20])
 
 ;; build the thing
 (defn build-matrix
@@ -44,8 +32,6 @@
   (q/background 255)
   (q/fill 0))
 
-(def grid-size 20)
-
 (defn do-matrix-indexed [f m]
   (do (mat/emap-indexed f m)))
 
@@ -55,21 +41,46 @@
   (let [[x y] idx]
     (println (str "x:" x ", y " y ", i:" i))))
 
-(def tst2
-  (let [[x y] grid-size-tiles]
-    (build-matrix #(mod (+ %1 %2) 2) x y)))
+(do-matrix-indexed
+  draw-matrix-element
+  tst3)
 
-(defn draw []
-  (q/background 255)
+(defn build-element
+  [x s]
+  (-> (/ x s)
+    float
+    Math/floor
+    int
+    (mod 2)))
+
+(def tst3
+  (let [[x y] grid-size
+        elem-fn #(build-element % tile-size)]
+    (build-matrix
+      (fn [& args]
+        (apply bit-xor
+          (map elem-fn args)))
+      x y)))
+
+(defn draw-fn1 []
+  (do
+    (q/background 0)
+    (do-matrix-indexed
+      (fn [idx i]
+        (let [[x y] idx]
+          (q/set-pixel x y (* 255 (- 1 i)))
+          (q/update-pixels)))
+      tst3)))
+
+(defn draw-fn2 []
   (do-matrix-indexed
-    (fn [idx-tiles i]
-      (let [idx (map (partial * tile-size) idx-tiles)
-            [x y] idx]
-        (q/fill (* 255 (- 1 i)))
-        (q/rect x y tile-size tile-size)))
-    tst2))
+    (fn [idx i]
+      (let [[x y] idx]
+        (if-not (zero? i)
+          (q/point x y))))
+    tst3))
 
 (q/defsketch square-tiles
   :setup setup
   :size grid-size
-  :draw draw)
+  :draw draw-fn2)
