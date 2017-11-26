@@ -8,11 +8,11 @@
 
 (def tile-size
   "The dimensions of the tiles in pixels."
-  5)
+  30)
 
 (def grid-size
   "The dimensions of the picture in pixels"
-  [200 200])
+  [300 300])
 
 ;; build the thing
 (defn build-matrix
@@ -28,23 +28,13 @@
 
 (defn setup []
   ; (q/frame-rate 60)
-  (q/color-mode :hsb)
+  (q/color-mode :rgb)
   (q/no-stroke)
   (q/background 255)
   (q/fill 0))
 
 (defn do-matrix-indexed [f m]
   (do (mat/emap-indexed f m)))
-
-(defn draw-matrix-element
-  "Takes a matrix index (idx) and element (i) and draws it."
-  [idx i]
-  (let [[x y] idx]
-    (println (str "x:" x ", y " y ", i:" i))))
-
-(do-matrix-indexed
-  draw-matrix-element
-  tst3)
 
 (defn build-element
   [x s]
@@ -102,11 +92,23 @@
     (do-matrix-indexed
       (fn [idx i]
         (let [[x y] idx]
-          (q/set-pixel img x y (* 255 (- 1 i)))))
+          (q/set-pixel img x y 0)))
+      tst3)
+    (q/image img 0 0)))
+
+(defn draw-fn6 []
+  (let [img (q/create-image
+              (first grid-size)
+              (second grid-size)
+              :rgb)]
+    (do-matrix-indexed
+      (fn [idx i]
+        (let [[x y] idx]
+          (q/set-pixel img x y (apply q/color (repeat 3 (* 255 (- 1 i)))))))
       tst3)
     (q/image img 0 0)))
 
 (q/defsketch square-tiles
   :setup setup
   :size grid-size
-  :draw draw-fn5)
+  :draw draw-fn6)
