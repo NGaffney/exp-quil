@@ -12,7 +12,7 @@
 
 (def grid-size
   "The dimensions of the picture in pixels"
-  [20 20])
+  [200 200])
 
 ;; build the thing
 (defn build-matrix
@@ -28,6 +28,7 @@
 
 (defn setup []
   ; (q/frame-rate 60)
+  (q/color-mode :hsb)
   (q/no-stroke)
   (q/background 255)
   (q/fill 0))
@@ -80,7 +81,32 @@
           (q/point x y))))
     tst3))
 
+(defn draw-fn3 []
+  (do-matrix-indexed
+    (fn [idx i]
+      (let [[x y] idx]
+        (q/fill (* 255 (- 1 i)))
+        (q/rect x y 1 1)))
+    tst3))
+
+(defn draw-fn4 []
+  (do
+    (q/pixels (mat/to-vector tst3))
+    (q/update-pixels)))
+
+(defn draw-fn5 []
+  (let [img (q/create-image
+              (first grid-size)
+              (second grid-size)
+              :rgb)]
+    (do-matrix-indexed
+      (fn [idx i]
+        (let [[x y] idx]
+          (q/set-pixel img x y (* 255 (- 1 i)))))
+      tst3)
+    (q/image img 0 0)))
+
 (q/defsketch square-tiles
   :setup setup
   :size grid-size
-  :draw draw-fn2)
+  :draw draw-fn5)
